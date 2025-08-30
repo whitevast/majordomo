@@ -586,11 +586,12 @@ function getKeyData($object_id)
 
 function returnTypedValue($value)
 {
-    if (preg_match('/^[\-\d\.]+$/', $value)) {
+    if (is_numeric($value) && preg_match('/^[\-\d\.]+$/', $value)) {
         if (strpos($value, '.') !== false) {
             return floatval($value);
+        } else {
+            return (int)$value;
         }
-        return (int)$value;
     }
     return $value;
 }
