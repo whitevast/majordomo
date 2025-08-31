@@ -589,7 +589,7 @@ function returnTypedValue($value)
     if (is_numeric($value) && preg_match('/^[\-\d\.]+$/', $value)) {
         if (strpos($value, '.') !== false) {
             return floatval($value);
-        } else {
+        } elseif (!preg_match('/^0/', $value)) {
             return (int)$value;
         }
     }
