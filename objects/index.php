@@ -48,7 +48,6 @@ chdir(dirname(__FILE__) . '/..');
 include_once("./config.php");
 include_once("./lib/loader.php");
 
-
 startMeasure('TOTAL'); // start calculation of execution time
 
 include_once(DIR_MODULES . "application.class.php");
@@ -113,6 +112,11 @@ if ($module != '') {
 $job = gr('job');
 $object = gr('object');
 $method = gr('method');
+$script = gr('script');
+
+$v = gr('v');
+$p = gr('p');
+$m = gr('m');
 
 if ($object != '') {
     $obj = getObject($object);
