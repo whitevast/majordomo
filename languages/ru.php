@@ -1246,6 +1246,7 @@ $dictionary = array(
     'DEVICES_OPENTYPE_GATES' => 'Ворота',
     'DEVICES_OPENTYPE_WINDOW' => 'Окно',
     'DEVICES_OPENTYPE_DOOR' => 'Дверь',
+    'DEVICES_OPENTYPE_VALVE' => 'Кран',
 
     'DEVICES_ADD_MENU' => 'Добавить устройство в Меню',
     'DEVICES_ADD_SCENE' => 'Добавить устройство на Сцену',

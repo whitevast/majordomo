@@ -178,6 +178,11 @@ if ($this->tab == 'settings') {
         $apply_others = gr('apply_others');
         foreach ($properties as $k => $v) {
             if (isset($v['_CONFIG_TYPE'])) {
+                if (isset($v['_CONFIG_CONDITION'])) {
+                    if (is_string($v['_CONFIG_CONDITION']) && !gg($rec['LINKED_OBJECT'] . '.' . $v['_CONFIG_CONDITION'])) {
+                        continue;
+                    }
+                }
                 if ($this->mode == 'update') {
                     global ${$k . '_value'};
                     if (isset(${$k . '_value'})) {
@@ -621,9 +626,9 @@ if ($parent_id) {
     $parent_device = SQLSelectOne("SELECT * FROM devices WHERE ID=" . $parent_id);
     $out['PARENT_DEVICE_TITLE'] = $parent_device['TITLE'];
 } elseif ($rec['ID']) {
-    $sub_devices = SQLSelect("SELECT ID, TITLE FROM devices WHERE PARENT_ID=".(int)$rec['ID']." ORDER BY TITLE");
+    $sub_devices = SQLSelect("SELECT ID, TITLE FROM devices WHERE PARENT_ID=" . (int)$rec['ID'] . " ORDER BY TITLE");
     if (isset($sub_devices[0])) {
-        $out['SUB_DEVICES']=$sub_devices;
+        $out['SUB_DEVICES'] = $sub_devices;
     }
 }
 $out['PARENT_ID'] = $parent_id;
