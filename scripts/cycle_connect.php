@@ -3,7 +3,7 @@
  * CONNECT MQTT CLIENT
  *
  * @package MajorDoMo
- * @author Serge Dzheigalo <jey@tut.by> http://smartliving.ru/
+ * @author Serge Dzheigalo <sergejey@gmail.com> https://majordomohome.com/
  * @version 1.3
  */
 chdir(dirname(__FILE__) . '/../');

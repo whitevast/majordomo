@@ -5,7 +5,7 @@
  * Objects
  *
  * @package MajorDoMo
- * @author Serge Dzheigalo <jey@tut.by> http://smartliving.ru/
+ * @author Serge Dzheigalo <sergejey@gmail.com> https://majordomohome.com/
  * @version 0.4 (wizard, 12:05:51 [May 22, 2009])
  */
 //

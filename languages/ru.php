@@ -3,7 +3,7 @@
  * Russian language file
  *
  * @package MajorDoMo
- * @author Serge Dzheigalo <jey@tut.by> http://smartliving.ru/
+ * @author Serge Dzheigalo <sergejey@gmail.com> https://majordomohome.com/
  * @version 1.0
  */
 
@@ -12,7 +12,7 @@ $dictionary = array(
 
     /* general */
     'SETTINGS_SITE_LANGUAGE_CODE' => 'ru_RU',
-    'WIKI_URL' => 'http://smartliving.ru/',
+    'WIKI_URL' => 'https://majordomohome.com/',
     'KB_URL'=>'https://kb.smartliving.ru/',
     'DEFAULT_COMPUTER_NAME' => 'Алиса',
     'WELCOME_GREETING' => 'Добро пожаловать!',
