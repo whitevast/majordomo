@@ -12,7 +12,7 @@ $dictionary = array(
 
     /* general */
     'SETTINGS_SITE_LANGUAGE_CODE' => 'ru_RU',
-    'WIKI_URL' => 'https://majordomohome.com/',
+    'WIKI_URL' => 'https://mjdm.ru/',
     'KB_URL'=>'https://kb.smartliving.ru/',
     'DEFAULT_COMPUTER_NAME' => 'Алиса',
     'WELCOME_GREETING' => 'Добро пожаловать!',
