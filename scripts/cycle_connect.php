@@ -133,22 +133,24 @@ while (1) {
             if (!defined('DISABLE_SIMPLE_DEVICES') && (time() - $simple_devices_queue_checked >= 5)) {
                 $simple_devices_queue_checked = time();
                 $devices_data_queue = checkOperationsQueue('connect_device_data');
-                foreach ($devices_data_queue as $property_data) {
-                    $devices_data[] = $property_data;
+                foreach ($devices_data_queue as $property_data_element) {
+                    $devices_data = array_filter($devices_data, function ($element) use ($property_data_element) {
+                        return $element['DATANAME'] != $property_data_element['DATANAME'];
+                    });
+                    $devices_data[] = $property_data_element;
                 }
                 $total_updated_devices = count($devices_data);
-                if (isset($devices_data[0])) {
+                if ($total_updated_devices > 0) {
                     $property_data = array_shift($devices_data);
                     DebMes("Devices data queue size: " . $total_updated_devices, 'connect');
                     //echo date('Y-m-d H:i:s') . " Sending updated devices data (" . count($devices_data) . ")\n";
                     //DebMes("Sending updated devices data (" . count($devices_data) . ")", 'connect');
                     //foreach ($devices_data as $property_data) {
-                        if (!isset($saved_devices_data[$property_data['DATANAME']]) || $saved_devices_data[$property_data['DATANAME']] != $property_data['DATAVALUE']) {
-                            $saved_devices_data[$property_data['DATANAME']] = $property_data['DATAVALUE'];
-                            DebMes("Sending " . $property_data['DATANAME'] . ": " . $property_data['DATAVALUE'], 'connect');
-                            $connect->sendDeviceProperty($property_data['DATANAME'], $property_data['DATAVALUE']);
-                            DebMes("Sent " . $property_data['DATANAME'], 'connect');
-                        }
+                    // && !isset($saved_devices_data[$property_data['DATANAME']]) || $saved_devices_data[$property_data['DATANAME']] != $property_data['DATAVALUE']
+                    //$saved_devices_data[$property_data['DATANAME']] = $property_data['DATAVALUE'];
+                    DebMes("Sending " . $property_data['DATANAME'] . ": " . $property_data['DATAVALUE'], 'connect');
+                    $connect->sendDeviceProperty($property_data['DATANAME'], $property_data['DATAVALUE']);
+                    DebMes("Sent " . $property_data['DATANAME'], 'connect');
                     //}
                 }
                 $sync_required = checkOperationsQueue('connect_sync_devices');
@@ -203,7 +205,7 @@ while (1) {
 function procmsg($topic, $msg)
 {
     echo date("Y-m-d H:i:s") . " Topic:{$topic} $msg\n";
-    DebMes("Processing incoming $topic: $msg",'connect');
+    DebMes("Processing incoming $topic: $msg", 'connect');
     if (preg_match('/menu_session/is', $topic)) {
         echo date("Y-m-d H:i:s") . " Menu session\n";
         $parent_id = $msg;
