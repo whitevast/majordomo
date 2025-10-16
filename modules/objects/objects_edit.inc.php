@@ -137,16 +137,32 @@ if ($this->tab == 'properties') {
         clearCacheData();
         $new_property = gr('new_property', 'trim');
         $new_property = str_replace(' ', '', $new_property);
+		$new_description = gr('new_description', 'trim');
+		$new_history = gr('new_history', 'trim');
+		$onchange = gr('onchange', 'trim');
         $new_value = gr('new_value');
-
+		$prop_id = gr('prop_id');
+		
+		$tmp = SQLSelectOne("SELECT * FROM properties WHERE ID='" . $prop_id . "'");
+		
         if ($new_property != '') {
-            $tmp = array();
             $tmp['TITLE'] = $new_property;
             $tmp['OBJECT_ID'] = $rec['ID'];
-            $tmp['ID'] = SQLInsert('properties', $tmp);
+            $tmp['DESCRIPTION'] = $new_description;
+            $tmp['KEEP_HISTORY'] = $new_history;
+            $tmp['ONCHANGE'] = $onchange;
+        }
+        if(empty($tmp['ID'])){
+			$tmp['ID'] = SQLInsert('properties', $tmp);
             if ($new_value != '') {
                 setGlobal($rec['TITLE'] . '.' . $new_property, $new_value);
             }
+        }else{
+            SQLUpdate('properties', $tmp);
+			if ($new_value != $tmp['VALUE']) {
+                setGlobal($rec['TITLE'] . '.' . $new_property, $new_value);
+            }
+			
         }
     }
 
@@ -161,6 +177,17 @@ if ($this->tab == 'properties') {
             $props[] = $p;
         }
     }
+	$methods = $cl->getParentMethods($rec['CLASS_ID'], '', 1);
+    $total = count($methods);
+    for ($i = 0; $i < $total; $i++) {
+        $my_meth = SQLSelectOne("SELECT ID FROM methods WHERE OBJECT_ID='" . $rec['ID'] . "' AND TITLE LIKE '" . DBSafe($methods[$i]['TITLE']) . "'");
+        $obj_name = SQLSelectOne("SELECT TITLE FROM `objects` WHERE ID = {$rec['ID']}");
+        $methods[$i]['OBJECT_TITLE'] = $obj_name['TITLE'];
+        if (isset($my_meth['ID'])) {
+            $methods[$i]['CUSTOMIZED'] = 1;
+        }
+    }
+    $out['METHODS'] = $methods;
 
     $total = count($props);
     //print_R($props);exit;
@@ -187,6 +214,17 @@ if ($this->tab == 'properties') {
                 if (!$prop_link) break;
                 $props[$i]['LINKED_MODULES'] .= '<span class="label label-success" style="margin-right: 3px;"><a style="color: white;text-decoration: none;" href="?(panel:{action=' . $prop_link . '})&md=' . $prop_link . '&go_linked_object=' . urlencode($rec['TITLE']) . '&go_linked_property=' . urlencode($props[$i]['TITLE']) . '">' . $prop_link . '</a></span>';
             }
+        }
+		//Добавим к свойствам возможные к привязке методы и исключим из списка уже привязанный метод
+        $props[$i]['METHODS'] = $methods;
+        if(!empty($props[$i]['ONCHANGE'])){
+            $counter = count($methods);
+            for($m=0; $m<=$counter; $m++){
+                if($props[$i]['METHODS'][$m]['TITLE'] == $props[$i]['ONCHANGE']){
+                    $delete_method = $m;
+                }
+            }
+			array_splice($props[$i]['METHODS'], $delete_method, true);
         }
     }
     if ($this->mode == 'update') {
