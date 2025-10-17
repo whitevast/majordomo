@@ -122,7 +122,7 @@ if ($this->tab == 'properties') {
         $pr = SQLSelectOne("SELECT * FROM properties WHERE ID='" . $delete_prop . "'");
         if ($pr['ID']) {
             $value = SQLSelectOne("SELECT * FROM pvalues WHERE PROPERTY_ID='" . $delete_prop . "' AND OBJECT_ID='" . $rec['ID'] . "'");
-            if ($value['ID']) {
+            if (!empty($value['ID'])) {
                 cleanUpValueHistory($value['ID'], 0, $pr['DATA_TYPE']);
                 SQLExec("DELETE FROM pvalues WHERE PROPERTY_ID='" . $delete_prop . "' AND OBJECT_ID='" . $rec['ID'] . "'");
             }
@@ -144,26 +144,28 @@ if ($this->tab == 'properties') {
 		$prop_id = gr('prop_id');
 		
 		$tmp = SQLSelectOne("SELECT * FROM properties WHERE ID='" . $prop_id . "'");
-		
         if ($new_property != '') {
             $tmp['TITLE'] = $new_property;
             $tmp['OBJECT_ID'] = $rec['ID'];
             $tmp['DESCRIPTION'] = $new_description;
-            $tmp['KEEP_HISTORY'] = $new_history;
+            $tmp['KEEP_HISTORY'] = !empty($new_history) ? $new_history : 0;
             $tmp['ONCHANGE'] = $onchange;
-        }
-        if(empty($tmp['ID'])){
-			$tmp['ID'] = SQLInsert('properties', $tmp);
-            if ($new_value != '') {
-                setGlobal($rec['TITLE'] . '.' . $new_property, $new_value);
-            }
-        }else{
-            SQLUpdate('properties', $tmp);
-			if ($new_value != $tmp['VALUE']) {
-                setGlobal($rec['TITLE'] . '.' . $new_property, $new_value);
-            }
-			
-        }
+			if(empty($tmp['ID'])){
+				//проверяем, есть ли свойство в объекте с таким же именем
+				$prop = SQLSelectOne("SELECT * FROM properties WHERE OBJECT_ID='" . $rec['ID'] . "' AND TITLE='" . $new_property . "'");
+				if(empty($prop['ID'])){
+					$tmp['ID'] = SQLInsert('properties', $tmp);
+					if ($new_value != '') {
+						setGlobal($rec['TITLE'] . '.' . $new_property, $new_value);
+					}
+				}
+			}else{
+				SQLUpdate('properties', $tmp);
+				if (getGlobal($rec['TITLE'] . '.' . $new_property) != $new_value) {
+					setGlobal($rec['TITLE'] . '.' . $new_property, $new_value);
+				}
+			}
+		}
     }
 
 
@@ -215,16 +217,19 @@ if ($this->tab == 'properties') {
                 $props[$i]['LINKED_MODULES'] .= '<span class="label label-success" style="margin-right: 3px;"><a style="color: white;text-decoration: none;" href="?(panel:{action=' . $prop_link . '})&md=' . $prop_link . '&go_linked_object=' . urlencode($rec['TITLE']) . '&go_linked_property=' . urlencode($props[$i]['TITLE']) . '">' . $prop_link . '</a></span>';
             }
         }
-		//Добавим к свойствам возможные к привязке методы и исключим из списка уже привязанный метод
-        $props[$i]['METHODS'] = $methods;
-        if(!empty($props[$i]['ONCHANGE'])){
-            $counter = count($methods);
-            for($m=0; $m<=$counter; $m++){
-                if($props[$i]['METHODS'][$m]['TITLE'] == $props[$i]['ONCHANGE']){
-                    $delete_method = $m;
+		
+        //Добавим к неклассовым свойствам возможные к привязке методы и исключим из списка уже привязанный метод
+        if($props[$i]['CLASS_ID'] == 0){
+            $props[$i]['METHODS'] = $methods;
+            if(!empty($props[$i]['ONCHANGE'])){
+                $counter = count($methods);
+                for($m=0; $m < $counter; $m++){
+                    if($props[$i]['METHODS'][$m]['TITLE'] == $props[$i]['ONCHANGE']){
+                        $delete_method = $m;
+                    }
                 }
+                array_splice($props[$i]['METHODS'], $delete_method, true);
             }
-			array_splice($props[$i]['METHODS'], $delete_method, true);
         }
     }
     if ($this->mode == 'update') {
