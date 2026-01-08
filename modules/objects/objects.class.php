@@ -823,7 +823,6 @@ class objects extends module
      */
     function setProperty($property, $value, $no_linked = 0, $source = '')
     {
-
         if (!preg_match('/cycle/is', $property) && function_exists('verbose_log')) {
             verbose_log('Property [' . $this->object_title . '.' . $property . '] set to \'' . $value . '\'');
         }
@@ -1091,6 +1090,7 @@ class objects extends module
                 $params['NEW_VALUE'] = (string)$value;
                 $params['OLD_VALUE'] = (string)$old_value;
                 $params['SOURCE'] = (string)$source;
+                $params['NO_LINKED'] = $no_linked;
                 //$this->callMethod($prop['ONCHANGE'], $params);
                 //$this->callMethodSafe($prop['ONCHANGE'], $params);
                 if (isset($_SERVER['REQUEST_URI']) && ($_SERVER['REQUEST_URI'] != '')) {

@@ -111,13 +111,14 @@ while (1) {
                 debug_echo(" Done ");
             } elseif ($value == $old_value) {
 
-                //debug_echo(" Check history for same value ".$h['VALUE_ID']);
                 $tmp_history = SQLSelect("SELECT * FROM $table_name WHERE VALUE_ID='" . $q_rec['VALUE_ID'] . "' ORDER BY ID DESC LIMIT 2");
                 $prev_value = $tmp_history[0]['VALUE'];
+                $prev_source = $tmp_history[0]['SOURCE'];
                 $prev_prev_value = $tmp_history[1]['VALUE'];
-                //debug_echo(" Done ");
 
-                if ($prev_value == $prev_prev_value && $tmp_history[0]['ID']) {
+                if ($q_rec['SOURCE'] == $prev_source &&
+                    $prev_value == $prev_prev_value &&
+                    $tmp_history[0]['ID']) {
                     debug_echo(" Update same value " . $q_rec['VALUE_ID']);
                     SQLExec("UPDATE $table_name SET ADDED='" . $q_rec['ADDED'] . "' WHERE ID=" . $tmp_history[0]['ID']);
                     /*

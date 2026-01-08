@@ -81,6 +81,10 @@ class panel extends module
                 $out['NAV_MODULE_CAT'] = $result["CATEGORY"];
                 $out['TITLE'] = $result["TITLE"] . ' | ' . $result["CATEGORY"] . ' | ' . LANG_CONTROL_PANEL;
             }
+            if (defined('PROJECT_TITLE') && PROJECT_TITLE != 'MajordomoSL') {
+                $out['TITLE'] = PROJECT_TITLE . ' | ' . $out['TITLE'];
+            }
+
         }
 
         $out['SETTINGS_SITE_LANGUAGE'] = SETTINGS_SITE_LANGUAGE;
