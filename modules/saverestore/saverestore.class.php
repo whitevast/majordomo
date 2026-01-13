@@ -1669,8 +1669,21 @@ class saverestore extends module
         if (DB_PASSWORD != '') $mysqlParam .= " --password=\"" . DB_PASSWORD . "\"";
         $mysqlParam .= " " . DB_NAME . " <" . $filename;
         $cmd = $mysql_path . $mysqlParam;
+        DebMes("Executing: " . $cmd, "restore");
         $result = exec($cmd, $output, $result_code);
         if ($result !== false) {
+            $files_to_remove = array(
+                ROOT . 'database_backup/db.sql',
+                ROOT . 'database_backup/db.sql.prev',
+                ROOT . 'database_backup/db_history.sql',
+                ROOT . 'database_backup/db_history.sql.prev'
+            );
+            foreach ($files_to_remove as $file) {
+                if (file_exists($file)) {
+                    DebMes("Removing current db state file: " . $file, "restore");
+                    unlink($file);
+                }
+            }
             DebMes("DB restored", "restore");
             SQLExec("DELETE FROM cached_values");
             setGlobal('cycle_mainRun', time());

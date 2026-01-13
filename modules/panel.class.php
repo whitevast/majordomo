@@ -84,7 +84,8 @@ class panel extends module
             if (defined('PROJECT_TITLE') && PROJECT_TITLE != 'MajordomoSL') {
                 $out['TITLE'] = PROJECT_TITLE . ' | ' . $out['TITLE'];
             }
-
+        } else {
+            $out['TITLE'] = PROJECT_TITLE.' - '.LANG_CONTROL_PANEL;
         }
 
         $out['SETTINGS_SITE_LANGUAGE'] = SETTINGS_SITE_LANGUAGE;
