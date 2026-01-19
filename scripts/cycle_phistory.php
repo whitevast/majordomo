@@ -113,10 +113,15 @@ while (1) {
 
                 $tmp_history = SQLSelect("SELECT * FROM $table_name WHERE VALUE_ID='" . $q_rec['VALUE_ID'] . "' ORDER BY ID DESC LIMIT 2");
                 $prev_value = $tmp_history[0]['VALUE'];
-                $prev_source = $tmp_history[0]['SOURCE'];
                 $prev_prev_value = $tmp_history[1]['VALUE'];
 
-                if ($q_rec['SOURCE'] == $prev_source &&
+                $this_source = $q_rec['SOURCE'];
+                $this_source = preg_replace('/\d+/is', 'N', $this_source);
+
+                $prev_source = $tmp_history[0]['SOURCE'];
+                $prev_source = preg_replace('/\d+/is', 'N', $prev_source);
+
+                if ($this_source == $prev_source &&
                     $prev_value == $prev_prev_value &&
                     $tmp_history[0]['ID']) {
                     debug_echo(" Update same value " . $q_rec['VALUE_ID']);

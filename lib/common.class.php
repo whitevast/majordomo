@@ -1064,6 +1064,9 @@ function return_memory_usage()
 
 function getPassedText($updatedTime)
 {
+    if (!is_int($updatedTime)) {
+        $updatedTime = strtotime($updatedTime);
+    }
     $passed = time() - $updatedTime;
     $passedText = '';
     if ($passed < 10) {
