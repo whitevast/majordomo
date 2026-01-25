@@ -119,41 +119,55 @@ if ($full_backup) {
 }
 
 
-// removing old files from cms/saverestore
-DebMes("Checking cms/saverestore files.", 'maintenance');
-if (is_dir(ROOT . 'cms/saverestore')) {
-    $files = scandir(ROOT . 'cms/saverestore');
-    foreach ($files as $file) {
-        $path = ROOT . 'cms/saverestore/' . $file;
-        if (is_file($path)
-            && (preg_match('/\.tgz$/', $file) || preg_match('/\.tar\.gz$/', $file) || preg_match('/\.zip\.gz$/', $file))
-            && filemtime($path) < time() - BACKUP_FILES_EXPIRE * 24 * 60 * 60
-        ) {
-            echo("Removing $path");
-            DebMes("Removing $path.", 'maintenance');
-            @unlink($path);
+if (!isset($run_from_start) || $run_from_start == 0) {
+    // removing old files from cms/saverestore
+    DebMes("Checking cms/saverestore files.", 'maintenance');
+    if (is_dir(ROOT . 'cms/saverestore')) {
+        $files = scandir(ROOT . 'cms/saverestore');
+        foreach ($files as $file) {
+            $path = ROOT . 'cms/saverestore/' . $file;
+            if (is_file($path)
+                && (preg_match('/\.tgz$/', $file) || preg_match('/\.tar\.gz$/', $file) || preg_match('/\.zip\.gz$/', $file))
+                && filemtime($path) < time() - BACKUP_FILES_EXPIRE * 24 * 60 * 60
+            ) {
+                echo("Removing $path");
+                DebMes("Removing $path.", 'maintenance');
+                @unlink($path);
+            }
         }
+    } else {
+        DebMes(ROOT . 'cms/saverestore - NOT FOUND', 'maintenance');
     }
-} else {
-    DebMes(ROOT . 'cms/saverestore - NOT FOUND', 'maintenance');
-}
 // removing old backus
-DebMes('Checking old backups.', 'maintenance');
-if (is_dir($backups_dir)) {
-    $backups = scandir($backups_dir);
-    foreach ($backups as $file) {
-        if ($file == '.' || $file == '..') continue;
-        $path = $backups_dir . '/' . $file;
-        if (is_dir($path) && filemtime($path) < time() - BACKUP_FILES_EXPIRE * 24 * 60 * 60) {
-            echo("Removing $path");
-            DebMes("Removing $path.", 'maintenance');
-            removeTree($path);
+    DebMes('Checking old backups.', 'maintenance');
+    if (is_dir($backups_dir)) {
+        $backups = scandir($backups_dir);
+        foreach ($backups as $file) {
+            if ($file == '.' || $file == '..') continue;
+            $path = $backups_dir . '/' . $file;
+            if (is_dir($path) && filemtime($path) < time() - BACKUP_FILES_EXPIRE * 24 * 60 * 60) {
+                echo("Removing $path");
+                DebMes("Removing $path.", 'maintenance');
+                removeTree($path);
+            }
         }
+        echo "OK";
+    } else {
+        DebMes($backups_dir . ' - NOT FOUND', 'maintenance');
+        echo $backups_dir . " not found";
     }
-    echo "OK";
 } else {
-    DebMes($backups_dir . ' - NOT FOUND', 'maintenance');
-    echo $backups_dir . " not found";
+    // RUN ON START ONLY
+    if (time() >= getGlobal('ThisComputer.started_time')) {
+        DebMes("Incorrect date on start, fixing.", 'maintenance');
+        SQLExec("DELETE FROM events WHERE ADDED > NOW()");
+        SQLExec("DELETE FROM phistory WHERE ADDED > NOW()");
+        SQLExec("DELETE FROM history WHERE ADDED > NOW()");
+        SQLExec("DELETE FROM shouts WHERE ADDED > NOW()");
+        SQLExec("DELETE FROM jobs WHERE PROCESSED = 1");
+        SQLExec("DELETE FROM history WHERE (TO_DAYS(NOW()) - TO_DAYS(ADDED)) >= 5");
+    }
+    setGlobal('ThisComputer.started_time', time());
 }
 
 
@@ -172,17 +186,6 @@ for ($i = 0; $i < $total; $i++) {
         SQLExec("REPAIR TABLE " . $table . ";");
         echo "OK\n";
     }
-}
-
-setGlobal('ThisComputer.started_time', time());
-if (time() >= getGlobal('ThisComputer.started_time')) {
-    DebMes("Incorrect date on start, fixing.", 'maintenance');
-    SQLExec("DELETE FROM events WHERE ADDED > NOW()");
-    SQLExec("DELETE FROM phistory WHERE ADDED > NOW()");
-    SQLExec("DELETE FROM history WHERE ADDED > NOW()");
-    SQLExec("DELETE FROM shouts WHERE ADDED > NOW()");
-    SQLExec("DELETE FROM jobs WHERE PROCESSED = 1");
-    SQLExec("DELETE FROM history WHERE (TO_DAYS(NOW()) - TO_DAYS(ADDED)) >= 5");
 }
 
 
@@ -233,9 +236,7 @@ for ($i = 0; $i < $total; $i++) {
                  WHERE ID = '" . $data[$i]['ID'] . "'";
 
     $rec = SQLSelectOne($sqlQuery);
-
     $rec['PROPERTY_NAME'] = $data[$i]['OBJECT_TITLE'] . "." . $data[$i]['PROPERTY_TITLE'];
-
     SQLUpdate('pvalues', $rec);
 }
 

@@ -1159,6 +1159,7 @@ $dictionary = array(
     'DEVICES_MSG_OPENING'=>'Сообщение при открытии',
     'DEVICES_MSG_CLOSING'=>'Сообщение при закрытии',
     'DEVICES_MSG_REMINDER'=>'Сообщение при напоминании',
+    'DEVICES_CONFIRMATION_REQUIRED'=>'Требуется подтверждение доставки команд',
 
     'DEVICES_OPENABLE' => 'Открываемое (Ворота/Двери/Шторы/и т.п.)',
     'DEVICES_OPENABLE_SUPPORT_LEVEL' => 'Поддержка уровня открытия',

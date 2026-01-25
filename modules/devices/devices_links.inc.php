@@ -24,9 +24,6 @@ if ($this->edit_mode == 'edit_link') {
             foreach ($link_details['PARAMS'] as &$p) {
                 if (isset($settings[$p['PARAM_NAME']])) {
                     $p['VALUE'] = $settings[$p['PARAM_NAME']];
-                    if ($p['PARAM_TYPE'] == 'duration') {
-                        $p['VALUE'] = gmdate("H:i:s", $p['VALUE']);
-                    }
                 }
             }
         }
@@ -56,9 +53,6 @@ if ($this->edit_mode == 'edit_link') {
             $total = count($params);
             for ($i = 0; $i < $total; $i++) {
                 $config[$params[$i]['PARAM_NAME']] = gr($params[$i]['PARAM_NAME'] . '_value');
-                if ($params[$i]['PARAM_TYPE'] == 'duration' && preg_match('/(\d+):(\d+):(\d+)/', $config[$params[$i]['PARAM_NAME']], $m)) {
-                    $config[$params[$i]['PARAM_NAME']] = $m[1] * 60 * 60 + $m[2] * 60 + $m[3];
-                }
             }
         }
         $link_rec['LINK_SETTINGS'] = serialize($config);

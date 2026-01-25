@@ -149,7 +149,9 @@
 [#begin RESULT#]
 [#if NEW_LOCATION#]
 <div class="row">
- <h3><a href="?view_mode=manage_rooms&location_id=[#LOCATION_ID#]">[#LOCATION_TITLE#]</a></h3>
+ <h3><a href="?view_mode=manage_rooms&location_id=[#LOCATION_ID#]">[#LOCATION_TITLE#]</a>
+  <a href="?view_mode=manage_rooms&location_id=[#LOCATION_ID#]" class="btn btn-default btn-sm"><i class="glyphicon glyphicon-wrench"></i></a>
+ </h3>
 </div>
 [#endif#]
 <div class="row">

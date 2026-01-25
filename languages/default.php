@@ -1162,6 +1162,7 @@ $dictionary = array(
     'DEVICES_MSG_OPENING'=>'Opening message text',
     'DEVICES_MSG_CLOSING'=>'Closing message text',
     'DEVICES_MSG_REMINDER'=>'Reminder message text',
+    'DEVICES_CONFIRMATION_REQUIRED'=>'Commands delivery confirmation required',
 
     'DEVICES_OPENABLE' => 'Openable (Gateways/Doors/Curtains/etc)',
     'DEVICES_OPENABLE_SUPPORT_LEVEL' => 'Support level of open',
