@@ -98,23 +98,13 @@ if ($full_backup) {
         copyTree(ROOT . 'cms/' . $d, $target_dir . '/cms/' . $d, 1);
     }
 
-    if (defined('PATH_TO_MYSQLDUMP'))
-        $mysqlDumpPath = PATH_TO_MYSQLDUMP;
-
-    if ($mysqlDumpPath == '') {
-        if (substr(php_uname(), 0, 7) == "Windows")
-            $mysqlDumpPath = SERVER_ROOT . "/server/mysql/bin/mysqldump";
-        else
-            $mysqlDumpPath = "/usr/bin/mysqldump";
+    $target_file = $target_dir . "/" . DB_NAME . ".sql";
+    DebMes("Backing up database " . DB_NAME . ' to ' . $target_file, 'maintenance');
+    if (SQLMakeDBDump($target_file)) {
+        DebMes("Backup done.", 'maintenance');
+    } else {
+        DebMes("Backup error.", 'maintenance');
     }
-
-    $mysqlDumpParam = " -h " . DB_HOST . " --user=\"" . DB_USER . "\" --password=\"" . DB_PASSWORD . "\"";
-    $mysqlDumpParam .= " --no-create-db --add-drop-table --databases " . DB_NAME;
-    $mysqlDumpParam .= " > " . $target_dir . "/" . DB_NAME . ".sql";
-
-    DebMes("Backing up database " . DB_NAME . ' to ' . $target_dir . "/" . DB_NAME . ".sql", 'maintenance');
-    exec($mysqlDumpPath . $mysqlDumpParam);
-    DebMes("Backup done.", 'maintenance');
     echo "OK\n";
 }
 

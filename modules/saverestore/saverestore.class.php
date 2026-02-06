@@ -1664,14 +1664,7 @@ class saverestore extends module
      */
     function restoredatabase($filename)
     {
-        $mysql_path = (substr(php_uname(), 0, 7) == "Windows") ? SERVER_ROOT . "/server/mysql/bin/mysql" : 'mysql';
-        $mysqlParam = " -u " . DB_USER;
-        if (DB_PASSWORD != '') $mysqlParam .= " --password=\"" . DB_PASSWORD . "\"";
-        $mysqlParam .= " " . DB_NAME . " <" . $filename;
-        $cmd = $mysql_path . $mysqlParam;
-        DebMes("Executing: " . $cmd, "restore");
-        $result = exec($cmd, $output, $result_code);
-        if ($result !== false) {
+        if (SQLRestoreDBDump($filename)) {
             $files_to_remove = array(
                 ROOT . 'database_backup/db.sql',
                 ROOT . 'database_backup/db.sql.prev',
@@ -1703,13 +1696,7 @@ class saverestore extends module
      */
     function backupdatabase($filename)
     {
-        if (defined('PATH_TO_MYSQLDUMP'))
-            $pathToMysqlDump = PATH_TO_MYSQLDUMP;
-        else
-            $pathToMysqlDump = IsWindowsOS() ? SERVER_ROOT . "/server/mysql/bin/mysqldump" : "/usr/bin/mysqldump";
-
-        $cmd = $pathToMysqlDump . " -h " . DB_HOST . " --user=\"" . DB_USER . "\" --password=\"" . DB_PASSWORD . "\" --no-create-db --add-drop-table " . DB_NAME . ">" . $filename;
-        exec($cmd);
+        return SQLMakeDBDump($filename);
     }
 
 
