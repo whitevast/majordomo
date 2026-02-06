@@ -30,57 +30,15 @@ if (!defined('MYSQL_BOTH')) {
 
 class mysql
 {
-    /**
-     * @var string database host
-     * @access private
-     */
     var $host;
-
-    /**
-     * @var string database port
-     * @access private
-     */
     var $port;
-
-    /**
-     * @var string database access username
-     * @access private
-     */
     var $user;
-
-    /**
-     * @var string database access password
-     * @access private
-     */
     var $password;
-
-    /**
-     * @var string database name
-     * @access private
-     */
     var $dbName; // database name
-
-    /**
-     * @var int database handler
-     * @access private
-     */
     var $dbh;
-
-    /**
-     * @var int latest transaction timestamp
-     * @access private
-     */
     var $latestTransaction;
-
-    /**
-     * @var int connection check timeout
-     * @access private
-     */
     var $pingTimeout;
-
-
     public $connected;
-
 
     /**
      * MySQL constructor
@@ -99,12 +57,8 @@ class mysql
         $this->user = $user;
         $this->password = $password;
         $this->dbName = $database;
-
         $this->latestTransaction = time();
         $this->pingTimeout = 5 * 60;
-
-        // Чтобы не сломать сторонние модули, если они вдруг смотрять на этот параметр
-        $this->connected = true;
         $this->Connect();
     }
 
@@ -121,42 +75,27 @@ class mysql
     public function Connect()
     {
         // connects to database
-
-        /*if (preg_match('/firefox/is',$_SERVER['HTTP_USER_AGENT'])) {
-           $this->host='127.0.0.3';
-        }
-        */
         if ($this->dbh) return true;
-
         if ($this->port) {
             $this->dbh = mysqli_connect($this->host, $this->user, $this->password, $this->dbName, $this->port);
         } else {
             $this->dbh = mysqli_connect($this->host, $this->user, $this->password, $this->dbName);
         }
-
         if (!$this->dbh) {
             $err_no = mysqli_connect_errno();
             $err_details = mysqli_connect_error();
             Define('NO_DATABASE_CONNECTION', 1);
             if ($_SERVER['REQUEST_URI'] != '') {
                 $stop = 1;
+                registerError('sql', $err_no . ": " . $err_details);
                 new custom_error($err_no . ": " . $err_details, $stop);
             }
             return 0;
         }
-        //$db_select = mysqli_select_db($this->dbh, $this->dbName);
-        $db_select = true;
-        if (!$db_select) {
-            Define('NO_DATABASE_CONNECTION', 1);
-            if (!defined('ALLOW_RUNNING_WITH_ERRORS')) {
-                die("Selecting db: " . $this->dbName);
-            }
-        } else {
-            $this->latestTransaction = time();
-            $this->Exec("set NAMES 'utf8', CHARACTER SET 'utf8', character_set_client='utf8', character_set_results='utf8', collation_connection='utf8_unicode_ci';");
-            return 1;
-        }
-
+        $this->connected = true;
+        $this->latestTransaction = time();
+        $this->Exec("set NAMES 'utf8', CHARACTER SET 'utf8', character_set_client='utf8', character_set_results='utf8', collation_connection='utf8_unicode_ci';");
+        return true;
     }
 
     /**
@@ -168,13 +107,10 @@ class mysql
      */
     public function Exec($query, $ignore_errors = false)
     {
-
         if (!$this->dbh && !$this->Connect()) return false;
-
         if ((time() - $this->latestTransaction) > $this->pingTimeout) {
             $this->Ping();
         }
-
         $this->latestTransaction = time();
         $result = mysqli_query($this->dbh, $query);
 
