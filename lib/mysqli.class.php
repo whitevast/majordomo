@@ -326,7 +326,7 @@ class mysql
             unlink(ROOT . 'cms/modules_installed/control_modules.installed');
             $stop = 0;
         }
-        registerError('sql', $err_no . ": " . $err_details . "\n$query");
+        registerError('sql', "Query: " . $query . "\n" . $err_no . ": " . $err_details . "\n$query");
         new custom_error($err_no . ": " . $err_details . "<br>$query", $stop);
         return 1;
     }

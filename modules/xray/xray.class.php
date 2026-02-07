@@ -490,6 +490,15 @@ class xray extends module
         }
 
         if ($this->view_mode == '') {
+
+            $download_file = gr('download_file');
+            if ($download_file!='' && file_exists(ROOT.'cms/debmes/'.$download_file)) {
+                header('Content-type: text/plain');
+                header('Content-Disposition: attachment; filename="'.$download_file.'"');
+                readfile(ROOT.'cms/debmes/'.$download_file);
+                exit;
+            }
+
             if (defined('SETTINGS_SYSTEM_DEBMES_PATH') && SETTINGS_SYSTEM_DEBMES_PATH != '') {
                 $path = SETTINGS_SYSTEM_DEBMES_PATH;
             } elseif (defined('LOG_DIRECTORY') && LOG_DIRECTORY != '') {
@@ -505,6 +514,14 @@ class xray extends module
             $total = count($files);
             for ($i = 0; $i < $total; $i++) {
                 $files[$i]['TITLE'] = str_replace($path . '/', '', $files[$i]['FILENAME']);
+                $files[$i]['BASENAME'] = basename($files[$i]['FILENAME']);
+                $files[$i]['PASSED'] = getPassedText($files[$i]['TM']);
+                $files[$i]['SIZE'] = filesize($files[$i]['FILENAME']);
+                if ($files[$i]['SIZE'] > 1024 * 1024) {
+                    $files[$i]['SIZE'] = round($files[$i]['SIZE'] / 1024 / 1024, 2) . ' MB';
+                } else {
+                    $files[$i]['SIZE'] = round($files[$i]['SIZE'] / 1024, 2) . ' KB';
+                }
             }
             $out['FILES'] = $files;
             $selected = gr('files');
@@ -512,12 +529,21 @@ class xray extends module
                 $selected = array(date('Y-m-d') . '/debug.log');
             }
             $total_selected_files = 0;
+            $out['TODAY_FILES'] = array();
             foreach ($out['FILES'] as &$item) {
                 if (in_array($item['TITLE'], $selected)) {
                     $total_selected_files++;
                     $item['SELECTED'] = 1;
                 }
+                if (date('Y-m-d', $item['TM']) == date('Y-m-d')) {
+                    $out['TODAY_FILES'][]=$item;
+                }
             }
+
+            usort($out['TODAY_FILES'], function ($a, $b) {
+                return strcmp($a['BASENAME'], $b['BASENAME']);
+            });
+
         }
 
         if ($ajax) {
