@@ -83,7 +83,7 @@ if ($mode2 == 'download') {
     $this->redirect("?");
 } elseif ($mode2 == "install") {
     $rec = SQLSelectOne("SELECT * FROM project_modules WHERE NAME='" . $name . "'");
-    SQLExec("DELETE FROM project_modules WHERE NAME='" . $name . "'");
+    //SQLExec("DELETE FROM project_modules WHERE NAME='" . $name . "'");
     @unlink(ROOT . 'cms/modules_installed/' . $name . ".installed");
     include_once(DIR_MODULES . $name . "/" . $name . ".class.php");
     $obj = "\$object$i";
