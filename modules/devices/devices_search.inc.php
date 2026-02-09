@@ -8,6 +8,11 @@ if ($this->owner->name == 'panel') {
 }
 $qry = "1";
 // search filters
+$search = gr('search');
+if ($search != '') {
+    $qry .= " AND (devices.TITLE LIKE '%" . DBSafe($search) . "%' OR devices.LINKED_OBJECT LIKE '%" . DBSafe($search) . "%' OR devices.ALT_TITLES LIKE '%" . DBSafe($search) . "%')";
+    $out['SEARCH'] = htmlspecialchars($search);
+}
 
 $type = gr('type');
 if ($type != '') {

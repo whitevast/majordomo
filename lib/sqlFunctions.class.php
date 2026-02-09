@@ -265,9 +265,10 @@ function SQLMakeTableDump($dump_file, $table_name)
             $mysqlDumpPath = "/usr/bin/mysqldump";
     }
     $mysqlDumpParam = " -h " . DB_HOST . " --user=\"" . DB_USER . "\" --password=\"" . DB_PASSWORD . "\"";
+    $mysqlDumpParam .= " " . DB_NAME;
     $mysqlDumpParam .= " " . $table_name;
     exec($mysqlDumpPath . $mysqlDumpParam . "> " . $dump_file . '.tmp', $output);
-    if (file_exists($dump_file) && filesize($dump_file) > 0) {
+    if (file_exists($dump_file . '.tmp') && filesize($dump_file) > 0) {
         rename($dump_file . '.tmp', $dump_file);
         debmes('Table ' . $table_name . ' backup to ' . $dump_file . ' OK.', 'db_backup');
         return true;
