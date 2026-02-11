@@ -18,13 +18,13 @@ resetRebootRequired();
 set_time_limit(0);
 
 $db_filename = ROOT . 'database_backup/db.sql';
-if (file_exists($db_filename) && filesize($db_filename) == 0 && file_exists($db_filename . '.prev') && filesize($db_filename . '.prev') > 0) {
+if ((!file_exists($db_filename) || filesize($db_filename) == 0) && file_exists($db_filename . '.prev') && filesize($db_filename . '.prev') > 0) {
     DebMes("Main backup file is empty, restoring from previous: " . $db_filename . '.prev', 'boot');
     $db_filename = $db_filename . '.prev';
 }
 
 $db_history_filename = ROOT . 'database_backup/db_history.sql';
-if (file_exists($db_history_filename) && filesize($db_history_filename) == 0 && file_exists($db_history_filename . '.prev') && filesize($db_history_filename . '.prev') > 0) {
+if ((!file_exists($db_history_filename) || filesize($db_history_filename) == 0) && file_exists($db_history_filename . '.prev') && filesize($db_history_filename . '.prev') > 0) {
     DebMes("Main history backup file is empty, restoring from previous: " . $db_history_filename . '.prev', 'boot');
     $db_history_filename = $db_history_filename . '.prev';
 }
