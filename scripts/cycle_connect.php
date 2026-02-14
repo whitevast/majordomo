@@ -141,17 +141,15 @@ while (1) {
                 }
                 $total_updated_devices = count($devices_data);
                 if ($total_updated_devices > 0) {
-                    $property_data = array_shift($devices_data);
                     DebMes("Devices data queue size: " . $total_updated_devices, 'connect');
-                    //echo date('Y-m-d H:i:s') . " Sending updated devices data (" . count($devices_data) . ")\n";
-                    //DebMes("Sending updated devices data (" . count($devices_data) . ")", 'connect');
-                    //foreach ($devices_data as $property_data) {
-                    // && !isset($saved_devices_data[$property_data['DATANAME']]) || $saved_devices_data[$property_data['DATANAME']] != $property_data['DATAVALUE']
-                    //$saved_devices_data[$property_data['DATANAME']] = $property_data['DATAVALUE'];
-                    DebMes("Sending " . $property_data['DATANAME'] . ": " . $property_data['DATAVALUE'], 'connect');
-                    $connect->sendDeviceProperty($property_data['DATANAME'], $property_data['DATAVALUE']);
-                    DebMes("Sent " . $property_data['DATANAME'], 'connect');
-                    //}
+                    for ($s = 0; $s < 10; $s++) {
+                        $property_data = array_shift($devices_data);
+                        if (is_array($property_data)) {
+                            DebMes("Sending " . $property_data['DATANAME'] . ": " . $property_data['DATAVALUE'], 'connect');
+                            $connect->sendDeviceProperty($property_data['DATANAME'], $property_data['DATAVALUE']);
+                            DebMes("Sent " . $property_data['DATANAME'], 'connect');
+                        }
+                    }
                 }
                 $sync_required = checkOperationsQueue('connect_sync_devices');
                 if ((time() - $devices_sent_time > 60 * 60) || is_array($sync_required[0])) {
