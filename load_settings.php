@@ -166,8 +166,12 @@ if ($home_network != ''
         $local_ip = '127.0.0.1';
     }
 
-    if (getenv('HTTP_X_FORWARDED_FOR') != '') {
-        $remoteAddr = getenv('HTTP_X_FORWARDED_FOR');
+    // X-Forwarded-For is trivially spoofable - only trust it if
+    // TRUSTED_PROXY is explicitly configured in config.php
+    if (defined('TRUSTED_PROXY') && TRUSTED_PROXY != '' && $remoteAddr == TRUSTED_PROXY) {
+        if (getenv('HTTP_X_FORWARDED_FOR') != '') {
+            $remoteAddr = getenv('HTTP_X_FORWARDED_FOR');
+        }
     }
 
     if (!preg_match('/' . $home_network_pattern . '/is', $remoteAddr) && $remoteAddr != $local_ip && trim($remoteAddr) != '::1') {

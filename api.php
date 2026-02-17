@@ -72,6 +72,49 @@ if (isset($request[0])) {
     }
 }
 
+/**
+ * Check if the current request is authenticated via API key or session.
+ * API key can be set in config.php: Define('API_KEY', 'your-secret-key');
+ * Pass via header: X-Api-Key: <key> or query param: ?api_key=<key>
+ */
+function apiRequireAuth() {
+    // Allow CLI invocations
+    if (isset($GLOBALS['argv'][0]) && $GLOBALS['argv'][0] != '') {
+        return true;
+    }
+
+    // Check API key if configured
+    if (defined('API_KEY') && API_KEY != '') {
+        $provided_key = '';
+        if (function_exists('getallheaders')) {
+            $headers = getallheaders();
+            if (isset($headers['X-Api-Key'])) {
+                $provided_key = $headers['X-Api-Key'];
+            } elseif (isset($headers['x-api-key'])) {
+                $provided_key = $headers['x-api-key'];
+            }
+        }
+        if (!$provided_key && isset($_REQUEST['api_key'])) {
+            $provided_key = $_REQUEST['api_key'];
+        }
+        if ($provided_key !== '' && hash_equals(API_KEY, $provided_key)) {
+            return true;
+        }
+    }
+
+    // Check session auth
+    global $session;
+    if (isset($session) && isset($session->data['AUTHORIZED']) && $session->data['AUTHORIZED']) {
+        return true;
+    }
+
+    // Not authenticated
+    http_response_code(403);
+    header('Content-Type: application/json');
+    echo json_encode(array('error' => 'Authentication required. Set API_KEY in config.php and pass via X-Api-Key header.'));
+    exit;
+}
+
 if (!isset($request[0])) {
     $result['error'] = 'Incorrect usage';
 } elseif (strtolower($request[0]) == 'devices' && $request[1] && $request[2] == 'links') {
@@ -456,6 +499,7 @@ if (!isset($request[0])) {
         $result['rooms'][] = $location;
     }
 } elseif (strtolower($request[0]) == 'module') {
+    apiRequireAuth();
     $module_name = find_module($request[1]);
     $module_file = DIR_MODULES . $module_name . '/' . $module_name . '.class.php';
     if (file_exists($module_file)) {
@@ -568,6 +612,7 @@ if (!isset($request[0])) {
             }
         }
     } elseif ($method == 'POST') {
+        apiRequireAuth();
         if (isset($tmp[1])) {
             if (isset($_POST['data'])) {
                 setGlobal($request[1], $_POST['data']);
@@ -616,6 +661,7 @@ if (!isset($request[0])) {
         }
     }
 } elseif (strtolower($request[0]) == 'method' && isset($request[1])) {
+    apiRequireAuth();
     $res = callMethod($request[1], $_GET);
     if (!is_null($res)) {
         $result['result'] = $res;
@@ -623,6 +669,7 @@ if (!isset($request[0])) {
         $result['result'] = 'OK';
     }
 } elseif (strtolower($request[0]) == 'script' && isset($request[1])) {
+    apiRequireAuth();
     $res = runScript($request[1], $_GET);
     if (!is_null($res)) {
         $result['result'] = $res;

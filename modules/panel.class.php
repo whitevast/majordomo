@@ -129,12 +129,17 @@ class panel extends module
             $tmp = SQLSelectOne("SELECT ID FROM users WHERE IS_ADMIN=1");
             if ($tmp['ID']) {
                 redirect("/");
+                exit;
             }
-            //
         }
 
         global $ajax_panel;
         if ($ajax_panel) {
+            if (!$this->authorized) {
+                header('HTTP/1.0 403 Forbidden');
+                echo 'Authentication required';
+                exit;
+            }
             include_once(DIR_MODULES . 'inc_panel_ajax.php');
         }
 

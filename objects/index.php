@@ -57,6 +57,37 @@ if (gr('prj')) {
     $session = new session("prj");
 }
 
+/**
+ * Check authentication for sensitive operations.
+ * Allows CLI and API key auth. Blocks unauthenticated HTTP requests.
+ */
+function objectsRequireAuth() {
+    if (isset($GLOBALS['argv'][1]) && $GLOBALS['argv'][1] != '') {
+        return true; // CLI invocation
+    }
+    if (defined('API_KEY') && API_KEY != '') {
+        $provided_key = '';
+        if (function_exists('getallheaders')) {
+            $headers = getallheaders();
+            if (isset($headers['X-Api-Key'])) $provided_key = $headers['X-Api-Key'];
+            elseif (isset($headers['x-api-key'])) $provided_key = $headers['x-api-key'];
+        }
+        if (!$provided_key && isset($_REQUEST['api_key'])) {
+            $provided_key = $_REQUEST['api_key'];
+        }
+        if ($provided_key !== '' && hash_equals(API_KEY, $provided_key)) {
+            return true;
+        }
+    }
+    global $session;
+    if (isset($session) && isset($session->data['AUTHORIZED']) && $session->data['AUTHORIZED']) {
+        return true;
+    }
+    header('HTTP/1.0 403 Forbidden');
+    echo 'Authentication required';
+    exit;
+}
+
 $commandLine = 0;
 
 if (isset($argv[1]) && $argv[1] != '') {
@@ -104,9 +135,17 @@ if (!isset($commandLine)) {
 
 $module = gr('module');
 if ($module != '') {
-    include_once(DIR_MODULES . $module . '/' . $module . '.class.php');
-    $mdl = new $module();
-    echo $mdl->usual($_GET);
+    objectsRequireAuth();
+    if (!preg_match('/^[a-zA-Z0-9_]+$/', $module)) {
+        echo 'Invalid module name';
+        exit;
+    }
+    $module_file = DIR_MODULES . $module . '/' . $module . '.class.php';
+    if (file_exists($module_file)) {
+        include_once($module_file);
+        $mdl = new $module();
+        echo $mdl->usual($_GET);
+    }
 }
 
 $job = gr('job');
@@ -129,11 +168,13 @@ if ($object != '') {
         }
 
         if ($op == 'set') {
+            objectsRequireAuth();
             $obj->setProperty($p, $v);
             echo "OK";
         }
 
         if ($op == 'm') {
+            objectsRequireAuth();
             $params = array();
             foreach ($_GET as $k => $v) {
                 $params[$k] = ${$k};
@@ -147,6 +188,7 @@ if ($object != '') {
         DebMes("object [" . $object . "] not found");
     }
 } elseif ($job != '') {
+    objectsRequireAuth();
     $job = SQLSelectOne("SELECT * FROM jobs WHERE ID='" . (int)$job . "'");
 
     if ($job['ID']) {
@@ -174,6 +216,7 @@ if ($object != '') {
         echo "OK";
     }
 } elseif ($method != '') {
+    objectsRequireAuth();
     $method = str_replace('%', '', $method);
     callMethod($method, $_REQUEST);
 } elseif (gr('sayReply')) {
@@ -190,6 +233,7 @@ if ($object != '') {
         echo $output;
     }
 } elseif ($script != '') {
+    objectsRequireAuth();
     runScript($script, $_REQUEST);
 }
 
