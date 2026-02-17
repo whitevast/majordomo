@@ -56,13 +56,8 @@ if (isset($_SERVER['REQUEST_METHOD'])) {
     //    stripit($params);
     //}
 
-    // Block injection of sensitive internal variables via request params
-    $blocked_vars = array('ajax_panel', 'command', 'session', 'authorized',
-        'this', 'GLOBALS', 'db', 'commandLine');
     foreach ($params as $k => $v) {
-        if (!in_array($k, $blocked_vars)) {
-            ${$k} = $v;
-        }
+        ${$k} = $v;
     }
 
     if (isset($_FILES) && count($_FILES) > 0) {
