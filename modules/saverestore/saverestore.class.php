@@ -158,12 +158,12 @@ class saverestore extends module
         }
         $out['MAX_SIZE'] = round($max_size / 1024 / 1024, 2) . ' Mb';
 
-        if (gr('mode') == 'force_update') {
+        if (gr('mode') == 'force_update' && $this->action == 'admin') {
             unset($_REQUEST['mode']);
             $this->autoUpdateSystem();
         }
 
-        if (gr('mode') == 'auto_update_settings') {
+        if (gr('mode') == 'auto_update_settings' && $this->action == 'admin') {
             $this->getConfig();
 
             $this->config['MASTER_UPDATE_URL'] = gr('set_update_url');
