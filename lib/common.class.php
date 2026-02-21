@@ -872,8 +872,12 @@ function registerError($code = 'custom', $details = '')
 
     $e = new \Exception;
     $backtrace = $e->getTraceAsString();
-
-    DebMes("Error registered (type: $code):\n" . $details . "\nBacktrace:\n" . $backtrace, 'errors');
+    if (isset($_SERVER['REQUEST_URI'])) {
+        $url = $_SERVER['REQUEST_URI'];
+    } else {
+        $url = 'n/a';
+    }
+    DebMes("Error registered (type: $code):\n" . $details . "\nURL: $url\nBacktrace:\n" . $backtrace, 'errors');
     $code = trim($code);
 
     if ($code == 'sql') {
