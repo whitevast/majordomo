@@ -445,7 +445,7 @@ function runScriptSafe($id, $params = 0)
         if (isset($params['r_s_s']) && !empty($params['r_s_s'])) {
             $run_SafeScript = $params['r_s_s'];
         }
-        $raiseEvent = $params['raiseEvent'];
+        $raiseEvent = isset($params['raiseEvent']) ? $params['raiseEvent'] : '';
         unset($params['raiseEvent']);
         unset($params['r_s_m']);
         unset($params['m_c_s']);
@@ -455,7 +455,7 @@ function runScriptSafe($id, $params = 0)
         if (isset($_GET['m_c_s']) && is_array($_GET['m_c_s']) && !empty($_GET['m_c_s'])) {
             $call_stack = $_GET['m_c_s'];
         }
-        $raiseEvent = $_GET['raiseEvent'];
+        $raiseEvent = isset($_GET['raiseEvent']) ? $_GET['raiseEvent'] : '';
         $run_SafeScript = isset($_GET['r_s_s']) ? $_GET['r_s_s'] : false;
         if (is_array($call_stack) && in_array($current_call, $call_stack)) {
             $call_stack[] = $current_call;
